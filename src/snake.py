@@ -1,6 +1,6 @@
 from cell import Cell
 from pygame.math import Vector2
-from pygame import Surface, image, display
+from pygame import Surface, image, display, mixer
 from typing import Dict
 
 
@@ -48,6 +48,8 @@ class Snake:
 
         self.__assets = load_assets(asset_path=f'{asset_path}/sprites/snake')
 
+        self.__crunch_sound = mixer.Sound(f'{asset_path}/audio/crunch.wav')
+
         self.__body = []
         self.__direction = Vector2(0, 0)
         self.reset()
@@ -73,6 +75,8 @@ class Snake:
             self.__direction = direction
 
     def grow(self) -> None:
+        self.__crunch_sound.play()
+
         tail = self.__body[-1]
         new_tail = Cell(position=Vector2(tail.position), size=self.__cell_size, surface=tail.surface)
 
