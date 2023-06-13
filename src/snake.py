@@ -43,7 +43,7 @@ def load_assets(asset_path: str) -> Dict[str, Dict[str, Surface]]:
 
 
 class Snake:
-    def __init__(self, cell_size: int, asset_path: str):
+    def __init__(self, cell_size: int, asset_path: str) -> None:
         self.__cell_size = cell_size
 
         self.__direction = Vector2(1, 0)
@@ -56,7 +56,7 @@ class Snake:
             Cell(position=Vector2(3, 10), size=self.__cell_size, surface=self.__assets['tail']['left'])
         ]
 
-    def draw(self, screen: display):
+    def draw(self, screen: display) -> None:
         self.__update_head_asset()
         self.__update_tail_asset()
 
@@ -66,17 +66,20 @@ class Snake:
         for cell in self.__body:
             cell.draw(screen=screen)
 
-    def move(self):
+    def move(self) -> None:
         for i in range(len(self.__body) - 1, 0, -1):
             self.__body[i].position = Vector2(self.__body[i - 1].position)
 
         self.__body[0].position += self.__direction
 
-    def set_direction(self, direction: Vector2):
+    def set_direction(self, direction: Vector2) -> None:
         if self.__direction + direction != Vector2(0, 0):
             self.__direction = direction
 
-    def __update_head_asset(self):
+    def get_body(self) -> list[Cell]:
+        return self.__body
+
+    def __update_head_asset(self) -> None:
         if self.__direction == Vector2(1, 0):
             self.__body[0].surface = self.__assets['head']['right']
         elif self.__direction == Vector2(-1, 0):
@@ -86,7 +89,7 @@ class Snake:
         elif self.__direction == Vector2(0, -1):
             self.__body[0].surface = self.__assets['head']['up']
 
-    def __update_tail_asset(self):
+    def __update_tail_asset(self) -> None:
         if self.__body[-2].position.x < self.__body[-1].position.x:
             self.__body[-1].surface = self.__assets['tail']['right']
         elif self.__body[-2].position.x > self.__body[-1].position.x:
@@ -96,7 +99,7 @@ class Snake:
         elif self.__body[-2].position.y > self.__body[-1].position.y:
             self.__body[-1].surface = self.__assets['tail']['up']
 
-    def __update_body_asset(self, index: int, cell: Cell):
+    def __update_body_asset(self, index: int, cell: Cell) -> None:
         previous_cell_rel_pos = self.__body[index - 1].position - cell.position
         next_cell_rel_pos = self.__body[index + 1].position - cell.position
 
