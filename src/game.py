@@ -2,10 +2,10 @@ from os import path
 import pygame
 from pygame.math import Vector2
 
-from cell import Cell
+from snake import Snake
 
 
-ASSETS_PATH = path.join(path.dirname(__file__), '..', 'assets')
+ASSET_PATH = path.join(path.dirname(__file__), '..', 'assets')
 
 
 class Game:
@@ -21,7 +21,7 @@ class Game:
 
         self.__is_running = True
 
-        self.cell = Cell(position=Vector2(19, 19), size=cell_size, surface=pygame.image.load(f'{ASSETS_PATH}/sprites/apple.png').convert_alpha())
+        self.__snake = Snake(cell_size=cell_size, asset_path=ASSET_PATH)
 
     def __del__(self) -> None:
         pygame.quit()
@@ -45,22 +45,22 @@ class Game:
                         self.__is_running = False
                         return
                     case pygame.K_w:
-                        print("w")
+                        self.__snake.set_direction(direction=Vector2(0, -1))
                     case pygame.K_s:
-                        print("s")
+                        self.__snake.set_direction(direction=Vector2(0, 1))
                     case pygame.K_a:
-                        print("a")
+                        self.__snake.set_direction(direction=Vector2(-1, 0))
                     case pygame.K_d:
-                        print("d")
+                        self.__snake.set_direction(direction=Vector2(1, 0))
                     case _:
                         pass
 
     def __update(self) -> None:
-        pass
+        self.__snake.move()
 
     def __draw(self) -> None:
         self.__screen.fill("white")
 
-        self.cell.draw(screen=self.__screen)
+        self.__snake.draw(screen=self.__screen)
 
         pygame.display.flip()
