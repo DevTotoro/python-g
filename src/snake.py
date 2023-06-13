@@ -46,15 +46,11 @@ class Snake:
     def __init__(self, cell_size: int, asset_path: str) -> None:
         self.__cell_size = cell_size
 
-        self.__direction = Vector2(1, 0)
-
         self.__assets = load_assets(asset_path=f'{asset_path}/sprites/snake')
 
-        self.__body = [
-            Cell(position=Vector2(5, 10), size=self.__cell_size, surface=self.__assets['head']['right']),
-            Cell(position=Vector2(4, 10), size=self.__cell_size, surface=self.__assets['body']['horizontal']),
-            Cell(position=Vector2(3, 10), size=self.__cell_size, surface=self.__assets['tail']['left'])
-        ]
+        self.__body = []
+        self.__direction = Vector2(0, 0)
+        self.reset()
 
     def draw(self, screen: display) -> None:
         self.__update_head_asset()
@@ -76,8 +72,32 @@ class Snake:
         if self.__direction + direction != Vector2(0, 0):
             self.__direction = direction
 
+    def grow(self) -> None:
+        tail = self.__body[-1]
+        new_tail = Cell(position=Vector2(tail.position), size=self.__cell_size, surface=tail.surface)
+
+        if tail.position.x < self.__body[-2].position.x:
+            new_tail.position.x -= 1
+        elif tail.position.x > self.__body[-2].position.x:
+            new_tail.position.x += 1
+        elif tail.position.y < self.__body[-2].position.y:
+            new_tail.position.y -= 1
+        elif tail.position.y > self.__body[-2].position.y:
+            new_tail.position.y += 1
+
+        self.__body.append(new_tail)
+
     def get_body(self) -> list[Cell]:
         return self.__body
+
+    def reset(self) -> None:
+        self.__direction = Vector2(1, 0)
+
+        self.__body = [
+            Cell(position=Vector2(5, 10), size=self.__cell_size, surface=self.__assets['head']['right']),
+            Cell(position=Vector2(4, 10), size=self.__cell_size, surface=self.__assets['body']['horizontal']),
+            Cell(position=Vector2(3, 10), size=self.__cell_size, surface=self.__assets['tail']['left'])
+        ]
 
     def __update_head_asset(self) -> None:
         if self.__direction == Vector2(1, 0):

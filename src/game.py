@@ -25,6 +25,7 @@ class Game:
         self.__clock = pygame.time.Clock()
 
         self.__is_running = True
+        self.__game_over = False
 
         self.__snake = Snake(cell_size=self.__cell_size, asset_path=ASSET_PATH)
         self.__fruit = self.__spawn_fruit()
@@ -35,8 +36,10 @@ class Game:
     def run(self, fps: int = 10) -> None:
         while self.__is_running:
             self.__process_events()
-            self.__update()
-            self.__draw()
+
+            if not self.__game_over:
+                self.__update()
+                self.__draw()
 
             self.__clock.tick(fps)
 
@@ -50,6 +53,9 @@ class Game:
                     case pygame.K_ESCAPE:
                         self.__is_running = False
                         return
+                    case pygame.K_SPACE:
+                        if self.__game_over:
+                            self.__reset()
                     case pygame.K_w:
                         self.__snake.set_direction(direction=Vector2(0, -1))
                     case pygame.K_s:
@@ -64,8 +70,10 @@ class Game:
     def __update(self) -> None:
         self.__snake.move()
 
+        self.__check_collisions()
+
     def __draw(self) -> None:
-        self.__screen.fill("white")
+        self.__screen.fill((170, 215, 81))
 
         self.__snake.draw(screen=self.__screen)
         self.__fruit.draw(screen=self.__screen)
@@ -75,8 +83,30 @@ class Game:
     def __spawn_fruit(self) -> Fruit:
         return Fruit(
             size=self.__cell_size,
-            max_x=self.__cells_x,
-            max_y=self.__cells_y,
+            max_x=self.__cells_x - 1,
+            max_y=self.__cells_y - 1,
             snake_body=self.__snake.get_body(),
             asset_path=ASSET_PATH
         )
+
+    def __check_collisions(self) -> None:
+        # Check food collision
+        if self.__snake.get_body()[0].position == self.__fruit.position:
+            self.__snake.grow()
+            self.__fruit = self.__spawn_fruit()
+
+        # Check body collision
+        for cell in self.__snake.get_body()[1:]:
+            if self.__snake.get_body()[0].position == cell.position:
+                self.__game_over = True
+
+        # Check wall collision
+        if self.__snake.get_body()[0].position.x < 0 or self.__snake.get_body()[0].position.x > self.__cells_x - 1:
+            self.__game_over = True
+        if self.__snake.get_body()[0].position.y < 0 or self.__snake.get_body()[0].position.y > self.__cells_y - 1:
+            self.__game_over = True
+
+    def __reset(self) -> None:
+        self.__snake.reset()
+        self.__fruit = self.__spawn_fruit()
+        self.__game_over = False
